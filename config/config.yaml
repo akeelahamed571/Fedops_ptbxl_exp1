@@ -1,0 +1,53 @@
+# ------------------------
+# Common
+# ------------------------
+
+random_seed: 42
+
+learning_rate: 0.001  # Learning rate used by the optimizer
+
+model_type: 'Pytorch'  # Required tag for FedOps system recognition
+
+model:
+  _target_: models.ConvRNNClassifier  # Your PTB-XL model class
+  input_size: 12                      # 12 ECG leads
+  hidden_size: 128
+  num_classes: 71                     # Multi-label output (71 diagnostic classes)
+
+dataset:
+  name: 'PTBXL'                       # Used in WandB and folder naming
+  validation_split: 0.2              # 20% of training data is for validation
+
+# ------------------------
+# Client Setup
+# ------------------------
+
+task_id: 'ptbxl_fedops_client_test'  # Must match your registered task ID on FedOps UI
+
+wandb: 
+  use: false                          # Set true if WandB logging is needed
+  key: 'your-wandb-api-key'          # Only used if WandB logging is enabled
+  account: 'your-wandb-account'      # Your WandB team or username
+  project: '${dataset.name}_${task_id}'  # Project name on WandB (dynamic)
+
+# ------------------------
+# Federated Learning Hyperparameters
+# ------------------------
+
+num_epochs: 1                         # Local epochs per round
+batch_size: 32                        # Batch size used by each client
+num_rounds: 2                        # Total rounds of federated training
+clients_per_round: 1                 # Number of clients active per round
+
+# ------------------------
+# Server Strategy
+# ------------------------
+
+server:
+  strategy:
+    _target_: flwr.server.strategy.FedAvg
+    fraction_fit: 0.00001            # Keep these low to force exact client selection
+    fraction_evaluate: 0.000001
+    min_fit_clients: ${clients_per_round}
+    min_available_clients: ${clients_per_round}
+    min_evaluate_clients: ${clients_per_round}

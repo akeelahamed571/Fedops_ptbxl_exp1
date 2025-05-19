@@ -1,0 +1,16 @@
+# Required for FedOps and federated learning
+fedops
+
+# PTB-XL model and training
+torch==1.13.1
+torchvision==0.14.1
+scikit-learn
+pandas
+numpy
+
+# ECG waveform processing
+wfdb==4.0.0
+
+# Optional logging and debugging
+tqdm
+wandb
